@@ -1,10 +1,6 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
-
-  # Enable dconf (System Management Tool)
-  programs.dconf.enable = true;
-
   # Add user to libvirtd group
   users.users.alex.extraGroups = [ "libvirtd" ];
 
@@ -29,5 +25,7 @@
   };
   services.spice-vdagentd.enable = true;
 
-}
+  # Do not auto-start libvirtd on boot; start it when needed.
+  systemd.services.libvirtd.wantedBy = lib.mkForce [ ];
 
+}

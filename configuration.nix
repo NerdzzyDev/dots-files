@@ -6,7 +6,18 @@
   ];
 
 
-  nix.settings.experimental-features = [ "flakes" "nix-command" ];
+  nix.settings = {
+    experimental-features = [ "flakes" "nix-command" ];
+    # Faster failure when one protocol/path is broken (for example flaky IPv6).
+    connect-timeout = 5;
+    auto-optimise-store = true;
+  };
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
 
   users.users.alex = {
     isNormalUser = true;
@@ -23,7 +34,6 @@
 
   
   services.xserver.videoDrivers = [ "intel" ];
-  programs.nix-ld.enable = true;
 
   hardware.graphics = {
   enable = true;
@@ -39,4 +49,3 @@
 
   system.stateVersion = "25.05";
 }
-

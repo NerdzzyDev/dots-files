@@ -10,8 +10,8 @@
     ohMyZsh = {
       enable = true;
       theme = "muse";
-      plugins = [ "git" "sudo" "docker" ];
+      # `docker` plugin often slows shell startup due to heavy completion setup.
+      plugins = [ "git" "sudo" ];
     };
   };
 }
-

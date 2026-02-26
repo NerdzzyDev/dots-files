@@ -1,11 +1,11 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   ########################
   ## Transmission GUI
   ########################
   environment.systemPackages = with pkgs; [
-    transmission-gtk  # полноценное GUI приложение
+    transmission_4-gtk  # полноценное GUI приложение
   ];
 
   ########################
@@ -13,6 +13,7 @@
   ########################
   services.transmission = {
     enable = true;
+    package = pkgs.transmission_4;
     openFirewall = true;
 
     settings = {
@@ -30,5 +31,7 @@
       speed-limit-down-enabled = true;
     };
   };
-}
 
+  # Keep installed but do not auto-start at boot; start on GUI launch.
+  systemd.services.transmission.wantedBy = lib.mkForce [ ];
+}

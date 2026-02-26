@@ -8,7 +8,6 @@
 
   boot.loader.grub = {
     enable = true;
-    version = 2;
     efiSupport = true;
 
     # Не писать в MBR — только EFI

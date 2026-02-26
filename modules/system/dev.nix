@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 {
   ## ------------------------------------
@@ -10,7 +10,7 @@
     docker-compose
 
     # Databases
-    postgresql
+    postgresql_16
     pgcli
 
     # Python
@@ -27,7 +27,9 @@
     go
 
     # Utils
+    gcc
     jq
+    uv
   ];
 
 
@@ -35,6 +37,8 @@
   ## DOCKER (опционально)
   ## -----------------------------
   virtualisation.docker.enable = true;
+  # Start dockerd on first use (socket activation), not on boot.
+  virtualisation.docker.enableOnBoot = false;
   users.users.alex.extraGroups = [ "docker" ];
 
 
@@ -51,5 +55,7 @@
       CREATE DATABASE dev OWNER alex;
     '';
   };
-}
 
+  # Keep PostgreSQL installed but do not auto-start at boot.
+  systemd.services.postgresql.wantedBy = lib.mkForce [ ];
+}

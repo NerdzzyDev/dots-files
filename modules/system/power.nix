@@ -11,7 +11,8 @@
   services.power-profiles-daemon.enable = true;
 
   # полезные сервисы для ноута
-  powerManagement.powertop.enable = true;
+  # Keep the tool installed, but don't auto-tune on every boot (it slows startup).
+  powerManagement.powertop.enable = false;
   services.thermald.enable = true;
   services.upower.enable = true;
   services.acpid.enable = true;
@@ -24,4 +25,3 @@
     power-profiles-daemon
   ];
 }
-

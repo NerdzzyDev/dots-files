@@ -5,11 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    quickshell.url = "github:outfoxxed/quickshell";
-    quickshell.inputs.nixpkgs.follows = "nixpkgs";
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs";
-    noctalia.inputs.quickshell.follows = "quickshell";
     vicinae.url = "github:vicinaehq/vicinae";
   };
 
@@ -37,21 +34,23 @@
         ./modules/system/networking.nix
         ./modules/system/bluetooth.nix
         ./modules/system/pipewire.nix
+        ./modules/system/nix-ld-compat.nix
         ./modules/system/zsh.nix
         ./modules/system/niri.nix
         ./modules/system/singbox.nix
         ./modules/system/packages.nix
         ./modules/system/power.nix
         ./modules/system/vm.nix
-	./modules/system/dev.nix
-	./modules/system/nautilus-full.nix
+        ./modules/system/dev.nix
+        ./modules/system/nautilus-full.nix
 	
 
-	#./modules/system/portproton.nix
-	#./modules/system/transmission.nix
+        # Optional profiles (keep disabled until needed)
+        # ./modules/system/portproton.nix
+        ./modules/system/transmission.nix
         
 
-	# Home Manager system module
+        # Home Manager system module
         home-manager.nixosModules.home-manager
 
 
@@ -68,7 +67,7 @@
 
     # Home Manager для alex с Noctalia
     homeConfigurations.alex = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      inherit pkgs;
       modules = [
         ./home/alex.nix
         noctalia.homeModules.default
@@ -77,4 +76,3 @@
     };
   };
 }
-

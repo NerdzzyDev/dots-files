@@ -47,9 +47,26 @@
     };
   };
 
+  # In niri sessions the GTK portal occasionally starts before the display env is
+  # fully available and exits. Restarting avoids long xdg-desktop-portal timeouts.
+  systemd.user.services.xdg-desktop-portal-gtk = {
+    after = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+  };
+
+  systemd.user.services.xdg-desktop-portal = {
+    serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+  };
+
   # Иногда полезно, чтобы окружение корректно подхватывалось в Wayland-сессии
   environment.sessionVariables = {
     XDG_CURRENT_DESKTOP = "niri";
   };
 }
-

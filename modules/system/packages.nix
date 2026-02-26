@@ -2,41 +2,42 @@
 
 {
   environment.systemPackages = with pkgs; [
+    # Base CLI
     git
     neovim
     kitty
+    pciutils
+
+    # Desktop apps
     firefox
+    chromium
+    google-chrome
+    vscodium
+    zoom-us
+    moonlight-qt
+    gnome-screenshot
+    ffmpeg
+    telegram-desktop
+
+    # System / audio / desktop helpers
     brightnessctl
     blueman
-    swaylock
-    vscodium
-    vicinae
     pavucontrol
     pamixer
-    pulseaudio
     sing-box
     noisetorch
-    gnome-screenshot
-    pciutils
-    ffmpeg
-    rocmPackages.clr.icd
-    intel-compute-runtime
+
+    # Media codecs / pipelines
     gst_all_1.gstreamer
     gst_all_1.gst-libav
     gst_all_1.gst-plugins-bad
     gst_all_1.gst-plugins-base
     gst_all_1.gst-plugins-good
     gst_all_1.gst-plugins-ugly
-    chromium
+
+    # Utilities
     bitwarden-cli
-    gcc
-    google-chrome
-    zoom-us
-    moonlight-qt
-    transmission_4-gtk
-    uv
   ];
 
   programs.noisetorch.enable = true;
 }
-
