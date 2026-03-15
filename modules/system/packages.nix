@@ -10,6 +10,7 @@
 
     # Desktop apps
     firefox
+    obsidian
     chromium
     google-chrome
     vscodium

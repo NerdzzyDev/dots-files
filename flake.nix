@@ -43,6 +43,7 @@
         ./modules/system/vm.nix
         ./modules/system/dev.nix
         ./modules/system/nautilus-full.nix
+        ./modules/system/meetily-build.nix
 	
 
         # Optional profiles (keep disabled until needed)

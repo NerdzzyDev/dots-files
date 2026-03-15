@@ -9,18 +9,29 @@
       stdenv.cc.cc
       zlib
       glib
+      gdk-pixbuf
       gtk3
       nss
       nspr
       atk
       at-spi2-atk
       at-spi2-core
+      libnotify
       pango
       cairo
+      harfbuzz
+      freetype
+      fontconfig
       alsa-lib
       dbus
+      systemd
+      udev
       libdrm
+      libgbm
+      libglvnd
+      vulkan-loader
       mesa
+      wayland
       libxkbcommon
       cups
       expat
@@ -30,9 +41,12 @@
       libxdamage
       libxext
       libxfixes
+      libxinerama
       libxi
       libxrandr
       libxcb
+      libXcursor
+      libXrender
       libxscrnsaver
       libxtst
       libxshmfence

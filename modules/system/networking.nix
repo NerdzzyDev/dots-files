@@ -2,7 +2,7 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
-  networking.networkmanager.wifi.powersave = false;
+  networking.networkmanager.wifi.powersave = true;
   services.resolved.enable = true;
   # IPv6 is currently broken (no default route). Disable to avoid timeouts.
   networking.enableIPv6 = false;

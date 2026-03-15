@@ -47,8 +47,8 @@
     };
   };
 
-  # In niri sessions the GTK portal occasionally starts before the display env is
-  # fully available and exits. Restarting avoids long xdg-desktop-portal timeouts.
+  # In niri sessions portal backends can start before the Wayland display env is
+  # ready. That breaks screencast (OBS) or causes long xdg-desktop-portal timeouts.
   systemd.user.services.xdg-desktop-portal-gtk = {
     after = [ "graphical-session.target" ];
     partOf = [ "graphical-session.target" ];
@@ -58,10 +58,34 @@
     };
   };
 
-  systemd.user.services.xdg-desktop-portal = {
+  systemd.user.services.xdg-desktop-portal-gnome = {
+    after = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
     serviceConfig = {
       Restart = "on-failure";
       RestartSec = 2;
+    };
+  };
+
+  systemd.user.services.xdg-desktop-portal = {
+    after = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+  };
+
+  # Force a clean portal restart after the graphical session is fully up.
+  # This fixes OBS screencast sources missing right after login.
+  systemd.user.services.xdg-desktop-portal-restart = {
+    description = "Restart portals after graphical session is ready";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.systemd}/bin/systemctl --user restart xdg-desktop-portal-gnome xdg-desktop-portal";
     };
   };
 
