@@ -8,10 +8,13 @@
     # Toolchain
     rustc
     cargo
+    rustfmt
     cmake
     pkg-config
     clang
     llvmPackages.libclang
+    gnumake
+    ninja
 
     # Tauri / WebView runtime + build deps
     gtk3
