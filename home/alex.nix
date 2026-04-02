@@ -98,6 +98,7 @@
       fi
       command virt-manager "$@"
     }
+
   '';
   # programs.ohMyZsh.enable = true;
   #programs.zsh.ohMyZsh.theme = "muse";
@@ -125,9 +126,57 @@
     flatpak
     obs-studio
     vlc
+    wl-mirror
     inotify-tools
     libreoffice
+    wineWow64Packages.full
+    p7zip
+    file
+    grim
+    anydesk
   ];
+
+  home.file.".config/fastfetch/config.jsonc".text = ''
+    // Fastfetch config
+    {
+      "logo": {
+        "type": "auto",
+        "padding": {
+          "top": 1
+        }
+      },
+      "display": {
+        "separator": "  ",
+        "color": "blue"
+      },
+      "modules": [
+        { "type": "title", "color": "blue" },
+        { "type": "separator" },
+        { "type": "os", "color": "cyan" },
+        { "type": "host", "color": "cyan" },
+        { "type": "kernel", "color": "cyan" },
+        { "type": "uptime", "color": "cyan" },
+        { "type": "packages", "color": "cyan" },
+        { "type": "shell", "color": "cyan" },
+        { "type": "de", "color": "cyan" },
+        { "type": "wm", "color": "cyan" },
+        { "type": "terminal", "color": "cyan" },
+        { "type": "theme", "color": "magenta" },
+        { "type": "icons", "color": "magenta" },
+        { "type": "font", "color": "magenta" },
+        { "type": "cursor", "color": "magenta" },
+        { "type": "cpu", "color": "green" },
+        { "type": "gpu", "color": "green" },
+        { "type": "memory", "color": "green" },
+        { "type": "disk", "color": "green" },
+        { "type": "battery", "color": "yellow" },
+        { "type": "localip", "color": "yellow" },
+        { "type": "locale", "color": "yellow" },
+        { "type": "break" },
+        { "type": "colors" }
+      ]
+    }
+  '';
 
   # ===== Noctalia =====
   programs.noctalia-shell.enable = true;
@@ -153,20 +202,54 @@
   home.file.".local/bin/obsidian-git-sync" = {
     executable = true;
     text = ''
-      #!/usr/bin/env bash
-      set -euo pipefail
-      DIR="$HOME/notes/book"
-      [ -d "$DIR" ] || exit 0
-      cd "$DIR"
-      ${pkgs.git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
-      ${pkgs.git}/bin/git add -A
-      if ! ${pkgs.git}/bin/git diff --cached --quiet; then
-        ${pkgs.git}/bin/git commit -m "sync: $(date -u '+%Y-%m-%d %H:%M:%SZ')" || true
-      fi
-      if ${pkgs.git}/bin/git remote get-url origin >/dev/null 2>&1; then
-        ${pkgs.git}/bin/git push -u origin HEAD || true
-      fi
-    '';
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="$HOME/notes/book"
+[ -d "$DIR" ] || exit 0
+cd "$DIR"
+${pkgs.git}/bin/git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+${pkgs.git}/bin/git add -A
+if ! ${pkgs.git}/bin/git diff --cached --quiet; then
+  ${pkgs.git}/bin/git commit -m "sync: $(date -u '+%Y-%m-%d %H:%M:%SZ')" || true
+fi
+if ${pkgs.git}/bin/git remote get-url origin >/dev/null 2>&1; then
+  ${pkgs.git}/bin/git push -u origin HEAD || true
+fi
+'';
+  };
+
+  home.file.".local/bin/niri-toggle-wl-mirror" = {
+    executable = true;
+    text = ''
+#!/usr/bin/env bash
+set -euo pipefail
+
+if pgrep -x wl-mirror >/dev/null 2>&1; then
+  pkill -x wl-mirror
+  exit 0
+fi
+
+output="$(niri msg --json focused-output | ${pkgs.jq}/bin/jq -r '.name')"
+exec ${pkgs.wl-mirror}/bin/wl-mirror "$output"
+'';
+  };
+
+  home.file.".local/bin/niri-presentation-preview" = {
+    executable = true;
+    text = ''
+#!/usr/bin/env bash
+set -euo pipefail
+
+title="Presentation Preview"
+
+if pgrep -af "${pkgs.wl-mirror}/bin/wl-mirror .*--title ''${title}.* Virtual-1" >/dev/null 2>&1; then
+  pkill -f "${pkgs.wl-mirror}/bin/wl-mirror .*--title ''${title}.* Virtual-1"
+  exit 0
+fi
+
+niri msg output Virtual-1 mode 1920x1080@60.000 >/dev/null 2>&1 || true
+exec ${pkgs.wl-mirror}/bin/wl-mirror --title "''${title}" Virtual-1
+'';
   };
 
   systemd.user.services.obsidian-git-sync = {
@@ -213,6 +296,50 @@
       ${pkgs.git}/bin/git -C "$dir" commit -m "init vault" || true
       ${pkgs.git}/bin/git -C "$dir" push -u origin main || true
     fi
+  '';
+
+  home.activation.niriPresentationWorkflow = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    set -e
+    cfg="$HOME/.config/niri/config.kdl"
+    if [ ! -f "$cfg" ]; then
+      exit 0
+    fi
+
+    ${pkgs.python3}/bin/python3 - <<'PY'
+from pathlib import Path
+import re
+import sys
+
+path = Path.home() / ".config/niri/config.kdl"
+text = path.read_text()
+
+replacement = """    // Niri Dynamic Cast (managed)
+    Ctrl+Alt+8 hotkey-overlay-title="Presentation: workspace 9" { focus-workspace 9; }
+    Ctrl+Alt+Shift+8 hotkey-overlay-title="Presentation: send window to workspace 9" { move-window-to-workspace 9; }
+    Ctrl+Alt+9 hotkey-overlay-title="Dynamic Cast: focused window" { set-dynamic-cast-window; }
+    Ctrl+Alt+F hotkey-overlay-title="Presentation: windowed fullscreen" { toggle-windowed-fullscreen; }
+    Ctrl+Alt+0 hotkey-overlay-title="Presentation: cast focused monitor with shell" { set-dynamic-cast-monitor; }
+    Ctrl+Alt+M hotkey-overlay-title="Presentation: toggle wl-mirror window" { spawn-sh "~/.local/bin/niri-toggle-wl-mirror"; }
+    Ctrl+Alt+P allow-inhibiting=false hotkey-overlay-title="Presentation: preview Virtual-1 in 1080p" { spawn-sh "~/.local/bin/niri-presentation-preview"; }
+    Ctrl+Left allow-inhibiting=false hotkey-overlay-title="Presentation: focus Virtual-1" { focus-monitor "Virtual-1"; }
+    Ctrl+Right allow-inhibiting=false hotkey-overlay-title="Presentation: focus laptop monitor" { focus-monitor "eDP-1"; }
+    Ctrl+Alt+Shift+Left allow-inhibiting=false hotkey-overlay-title="Presentation: move window to laptop monitor" { move-window-to-monitor "eDP-1"; }
+    Ctrl+Alt+Shift+Right allow-inhibiting=false hotkey-overlay-title="Presentation: move window to Virtual-1" { move-window-to-monitor "Virtual-1"; }
+    Ctrl+Alt+Minus hotkey-overlay-title="Dynamic Cast: clear target" { clear-dynamic-cast-target; }
+    // End Niri Dynamic Cast"""
+
+pattern = re.compile(
+    r"    // Niri Dynamic Cast \(managed\)\n.*?    // End Niri Dynamic Cast",
+    re.S,
+)
+
+updated, count = pattern.subn(replacement, text, count=1)
+if count == 0:
+    sys.exit("Failed to find the managed Niri Dynamic Cast block in ~/.config/niri/config.kdl")
+
+if updated != text:
+    path.write_text(updated)
+PY
   '';
 
   home.file.".config/flatpak/remotes.d/flathub.flatpakrepo".text = ''

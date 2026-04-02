@@ -14,9 +14,11 @@
     pgcli
 
     # Python
-    python3
-    python3Packages.pip
-    python3Packages.virtualenv
+    (python3.withPackages (ps: with ps; [
+      pip
+      tkinter
+      virtualenv
+    ]))
 
     # Node.js / npm
     nodejs_20
@@ -30,6 +32,7 @@
     gcc
     jq
     uv
+    gh
   ];
 
 

@@ -25,7 +25,8 @@
     shell = pkgs.zsh;
   };
 
-  boot.kernelModules = [ "fuse" ];
+  # vkms can expose a virtual DRM output for a presentation-only monitor.
+  boot.kernelModules = [ "fuse" "vkms" ];
 
   environment.systemPackages = with pkgs; [
     fuse2
