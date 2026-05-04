@@ -8,9 +8,11 @@
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs";
     vicinae.url = "github:vicinaehq/vicinae";
+    zen-browser.url = "github:youwen5/zen-browser-flake";
+    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, noctalia, vicinae, ... }:
+  outputs = { self, nixpkgs, home-manager, noctalia, vicinae, zen-browser, ... }:
   let
     system = "x86_64-linux";
 
@@ -24,7 +26,7 @@
   {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       inherit system pkgs;
-      specialArgs = { inherit home-manager noctalia ; };
+      specialArgs = { inherit home-manager noctalia; zenBrowser = zen-browser; };
 
       modules = [
         ./configuration.nix

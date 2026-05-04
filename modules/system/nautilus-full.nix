@@ -17,10 +17,27 @@
   services.gnome.gnome-keyring.enable = true;
 
   # Порталы (улучшает file chooser/интеграцию в Wayland)
+  programs.niri.useNautilus = false;
   xdg.portal.enable = true;
   xdg.portal.extraPortals = with pkgs; [
     xdg-desktop-portal-gtk
+    xdg-desktop-portal-gnome
+    xdg-desktop-portal-wlr
   ];
+
+  xdg.portal.wlr.enable = true;
+
+  xdg.portal.config = {
+    common = {
+      default = [ "gtk" ];
+    };
+
+    niri = {
+      "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+      "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+    };
+  };
 
   environment.systemPackages = with pkgs; [
     nautilus
@@ -85,7 +102,7 @@
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.systemd}/bin/systemctl --user restart xdg-desktop-portal-gnome xdg-desktop-portal";
+      ExecStart = "${pkgs.systemd}/bin/systemctl --user restart xdg-desktop-portal-gtk xdg-desktop-portal-gnome xdg-desktop-portal";
     };
   };
 

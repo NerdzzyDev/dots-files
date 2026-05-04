@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, zenBrowser, ... }:
 
 {
   environment.systemPackages = with pkgs; [
@@ -13,6 +13,8 @@
     obsidian
     chromium
     google-chrome
+    zed-editor
+    zenBrowser.packages.${pkgs.system}.default
     vscodium
     zoom-us
     moonlight-qt

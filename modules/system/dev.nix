@@ -31,6 +31,7 @@
     # Utils
     gcc
     jq
+    direnv
     uv
     gh
   ];
